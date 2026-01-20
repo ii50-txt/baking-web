@@ -12,13 +12,21 @@ export async function POST(req: Request) {
   try {
     const { ingredients, device } = await req.json();
 
-    const prompt = `你是一位烘焙专家。用户有食材：${ingredients.join(', ')}，使用设备：${device}。
-    请推荐一个甜品并以 JSON 格式返回：
-    {
-      "title": "甜品名称",
-      "steps": "极简步骤，包含${device}的具体温度和时间",
-      "videoUrl": "https://search.bilibili.com/all?keyword=甜品名+${device}+教程"
-    }`;
+    const prompt = `你是一位严格的烘焙专家。
+用户【仅有】以下食材：${ingredients.join(', ')}。
+用户使用的设备是：${device}。
+
+### 约束规则（必须严格遵守）：
+1. 推荐的甜品名称必须与提供的食材高度匹配。
+2. 严禁使用任何用户未提供的食材（包括砂糖、面粉等调料）。如果食材不足以做任何甜品，请直接返回：{"title": "食材不足", "steps": "很抱歉，目前的食材还差一点点，建议再准备些[缺失食材]。", "videoUrl": "https://www.bilibili.com"}。
+3. 如果没有砂糖，请尝试推荐不需要糖的方子（如香蕉吐司）或利用水果本身的甜味。
+
+### 返回格式（JSON）：
+{
+  "title": "甜品名称",
+  "steps": "详细步骤",
+  "videoUrl": "B站搜索链接"
+}`;
 
     const response = await openai.chat.completions.create({
       // 关键点：模型名称改为 deepseek-chat
