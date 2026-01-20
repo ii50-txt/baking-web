@@ -7,7 +7,7 @@ export default function Home() {
   const [recipe, setRecipe] = useState<any>(null);
   const [loading, setLoading] = useState(false);
 
-  const ingredients = ["鸡蛋", "牛奶", "低筋面粉", "砂糖", "淡奶油", "香蕉", "吐司", "酸奶"];
+  const ingredients = ["鸡蛋", "牛奶", "低筋面粉", "砂糖", "淡奶油", "香蕉", "吐司", "酸奶", "黄油", "巧克力", "抹茶粉", "芝士"]; // 增加一些食材
 
   const handleGenerate = async () => {
     if (selected.length === 0) return alert("请选点食材吧，巧妇难为无米之炊呀 ~");
@@ -22,7 +22,7 @@ export default function Home() {
       const data = await res.json();
       setRecipe(data);
     } catch (e) {
-      alert("哎呀，实验室烤箱断电了（生成失败）");
+      alert("哎呀，实验室烤箱断电了（生成失败），请检查网络或刷新重试。");
     }
     setLoading(false);
   };
@@ -50,10 +50,10 @@ export default function Home() {
                 key={item}
                 disabled={loading}
                 onClick={() => setSelected(prev => prev.includes(item) ? prev.filter(i => i!==item) : [...prev, item])}
-                className={`py-2 text-sm rounded-2xl border-2 transition-all duration-300 ${
+                className={`py-2 text-sm rounded-2xl border-2 transition-all duration-300 transform ${
                   selected.includes(item) 
                     ? 'bg-orange-500 border-orange-500 text-white shadow-lg shadow-orange-200 scale-105' 
-                    : 'bg-white border-gray-100 text-gray-500 hover:border-orange-200'
+                    : 'bg-white border-gray-100 text-gray-500 hover:border-orange-200 hover:scale-105'
                 } ${loading ? 'opacity-40 cursor-not-allowed' : ''}`}
               >
                 {item}
@@ -75,7 +75,7 @@ export default function Home() {
                 onClick={() => setDevice(d)}
                 disabled={loading}
                 className={`flex-1 py-3 rounded-2xl border-2 transition-all ${
-                  device === d ? 'border-orange-500 bg-orange-50 text-orange-600 font-bold' : 'border-gray-100 text-gray-400'
+                  device === d ? 'border-orange-500 bg-orange-50 text-orange-600 font-bold shadow-md' : 'border-gray-100 text-gray-400'
                 } ${loading ? 'opacity-40' : ''}`}
               >
                 {d}
@@ -92,12 +92,24 @@ export default function Home() {
             loading ? 'bg-gray-300' : 'bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600'
           }`}
         >
-          {loading ? '正在研发独家配方...' : '开启美味探索'}
+          {loading ? (
+            <span className="flex items-center justify-center gap-3">
+              <span className="text-3xl animate-bounce">🔥</span>
+              正在烘焙中...
+            </span>
+          ) : '开启美味探索'}
         </button>
 
         {/* 结果呈现 */}
+        {loading && !recipe && ( // 增加一个loading时的动画，避免空白等待
+            <div className="mt-10 flex flex-col items-center justify-center animate-pulse text-gray-500">
+                <span className="text-6xl mb-4">⏳</span>
+                <p className="font-medium text-lg">AI 正在努力思考配方...</p>
+            </div>
+        )}
+
         {recipe && !loading && (
-          <div className="mt-10 p-6 rounded-[2rem] bg-gradient-to-br from-orange-50 to-amber-50 border border-orange-100/50 animate-in slide-in-from-top-4 fade-in duration-700">
+          <div className="mt-10 p-6 rounded-[2.5rem] bg-gradient-to-br from-orange-50 to-amber-50 border border-orange-100/50 animate-in slide-in-from-bottom-8 fade-in duration-1000">
             <div className="flex justify-between items-start mb-4">
               <h3 className="text-2xl font-black text-orange-900">{recipe.title}</h3>
               <span className="bg-orange-200 text-orange-700 text-[10px] px-2 py-1 rounded-full font-bold uppercase tracking-tighter">Chef AI</span>
@@ -109,6 +121,7 @@ export default function Home() {
               <a 
                 href={recipe.videoUrl} 
                 target="_blank" 
+                rel="noopener noreferrer"
                 className="flex items-center justify-center gap-2 w-full bg-[#fb7299] text-white py-4 rounded-2xl font-bold shadow-lg shadow-pink-100 hover:brightness-105 transition-all"
               >
                 <span>点击观看视频教程</span>
