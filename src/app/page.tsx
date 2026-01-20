@@ -7,7 +7,7 @@ export default function Home() {
   const [recipe, setRecipe] = useState<any>(null);
   const [loading, setLoading] = useState(false);
 
-  const ingredients = ["鸡蛋", "牛奶", "低筋面粉", "砂糖", "淡奶油", "香蕉", "吐司", "酸奶", "黄油", "巧克力", "抹茶粉", "芝士"]; // 增加一些食材
+  const ingredients = ["鸡蛋", "牛奶", "低筋面粉", "砂糖", "淡奶油", "香蕉", "吐司", "酸奶", "黄油", "巧克力", "抹茶粉", "芝士"];
 
   const handleGenerate = async () => {
     if (selected.length === 0) return alert("请选点食材吧，巧妇难为无米之炊呀 ~");
@@ -94,18 +94,24 @@ export default function Home() {
         >
           {loading ? (
             <span className="flex items-center justify-center gap-3">
-              <span className="text-3xl animate-bounce">🔥</span>
+              <span className="text-3xl animate-pulse">🔥</span> {/* 保持火焰动画，或用其他 */}
               正在烘焙中...
             </span>
           ) : '开启美味探索'}
         </button>
 
-        {/* 结果呈现 */}
-        {loading && !recipe && ( // 增加一个loading时的动画，避免空白等待
-            <div className="mt-10 flex flex-col items-center justify-center animate-pulse text-gray-500">
-                <span className="text-6xl mb-4">⏳</span>
-                <p className="font-medium text-lg">AI 正在努力思考配方...</p>
-            </div>
+        {/* 结果呈现 / 加载动画 */}
+        {loading && !recipe && (
+          <div className="mt-10 flex flex-col items-center justify-center animate-pulse text-gray-500">
+            {/* 烤箱动画 SVG */}
+            <svg className="w-24 h-24 text-orange-500 animate-bounce-slow" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 0 002 2z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 18V9" /> {/* 烤箱门把手 */}
+                <circle cx="15" cy="12" r="1" fill="currentColor"/> {/* 模拟烤箱内部灯光或食物 */}
+                <circle cx="9" cy="12" r="1" fill="currentColor"/>
+            </svg>
+            <p className="font-medium text-lg mt-4">AI 正在努力烘焙中，美味即将出炉...</p>
+          </div>
         )}
 
         {recipe && !loading && (
