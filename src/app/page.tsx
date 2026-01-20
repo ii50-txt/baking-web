@@ -5,16 +5,14 @@ export default function Home() {
   const [selected, setSelected] = useState<string[]>([]);
   const [device, setDevice] = useState('空气炸锅');
   const [recipe, setRecipe] = useState<any>(null);
-  const [loading, setLoading] = useState(false); // 这里定义的是 loading
+  const [loading, setLoading] = useState(false);
 
   const ingredients = ["鸡蛋", "牛奶", "低筋面粉", "砂糖", "淡奶油", "香蕉", "吐司", "酸奶"];
 
   const handleGenerate = async () => {
-    if (selected.length === 0) {
-      alert("请至少选择一个原材料哦！");
-      return;
-    }
+    if (selected.length === 0) return alert("请选点食材吧，巧妇难为无米之炊呀 ~");
     setLoading(true);
+    setRecipe(null); // 清空旧结果，增加仪式感
     try {
       const res = await fetch('/api/baking', {
         method: 'POST',
@@ -24,98 +22,104 @@ export default function Home() {
       const data = await res.json();
       setRecipe(data);
     } catch (e) {
-      alert("生成失败，请检查 API Key 或网络");
+      alert("哎呀，实验室烤箱断电了（生成失败）");
     }
     setLoading(false);
   };
 
-  const toggleIngredient = (item: string) => {
-    // 如果正在加载，则不允许修改
-    if (loading) return;
-    setSelected(prev => 
-      prev.includes(item) ? prev.filter(i => i !== item) : [...prev, item]
-    );
-  };
-
   return (
-    <main className="min-h-screen p-8 bg-orange-50 flex flex-col items-center">
-      <h1 className="text-3xl font-bold text-orange-800 mb-8">烘焙实验室 </h1>
+    <main className="min-h-screen p-4 md:p-12 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-orange-100 via-orange-50 to-white flex flex-col items-center">
+      {/* 标题区 */}
+      <div className="text-center mb-10">
+        <h1 className="text-4xl font-black text-orange-900 tracking-tight mb-2">
+          BAKING <span className="text-orange-500">LAB</span>
+        </h1>
+        <p className="text-orange-700/60 font-medium">—— 你的 AI 烘焙灵感助手 ——</p>
+      </div>
       
-      <div className="bg-white p-6 rounded-xl shadow-md w-full max-w-md">
-        <p className="mb-4 font-bold text-gray-700">家里还有什么？</p>
-        
-        {/* 原材料选择区域 */}
-        <div className="flex flex-wrap gap-2 mb-6">
-          {ingredients.map(item => (
-            <button 
-              key={item}
-              disabled={loading} // 正在查找时禁用原材料按钮
-              onClick={() => toggleIngredient(item)}
-              className={`px-4 py-2 rounded-full border transition-all ${
-                selected.includes(item) 
-                  ? 'bg-orange-500 text-white border-orange-500' 
-                  : 'bg-white text-gray-600 border-gray-200'
-              } ${loading ? 'opacity-50 cursor-not-allowed' : 'hover:border-orange-300'}`}
-            >
-              {item}
-            </button>
-          ))}
-        </div>
-
-        <div className="flex flex-col gap-4 mb-6">
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-gray-500 font-medium">使用设备:</span>
-            <select 
-              value={device} 
-              disabled={loading}
-              onChange={e => setDevice(e.target.value)} 
-              className="flex-1 p-2 rounded border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-orange-500 disabled:bg-gray-100"
-            >
-              <option>空气炸锅</option>
-              <option>烤箱</option>
-              <option>微波炉</option>
-            </select>
+      <div className="bg-white/80 backdrop-blur-xl p-8 rounded-[2.5rem] shadow-[0_20px_50px_rgba(251,146,60,0.15)] w-full max-w-lg border border-white">
+        {/* 食材选择 */}
+        <section className="mb-8">
+          <div className="flex items-center gap-2 mb-4">
+            <span className="w-1.5 h-6 bg-orange-500 rounded-full"></span>
+            <h2 className="font-bold text-gray-800 text-lg">我的储备粮</h2>
           </div>
+          <div className="grid grid-cols-4 gap-3">
+            {ingredients.map(item => (
+              <button 
+                key={item}
+                disabled={loading}
+                onClick={() => setSelected(prev => prev.includes(item) ? prev.filter(i => i!==item) : [...prev, item])}
+                className={`py-2 text-sm rounded-2xl border-2 transition-all duration-300 ${
+                  selected.includes(item) 
+                    ? 'bg-orange-500 border-orange-500 text-white shadow-lg shadow-orange-200 scale-105' 
+                    : 'bg-white border-gray-100 text-gray-500 hover:border-orange-200'
+                } ${loading ? 'opacity-40 cursor-not-allowed' : ''}`}
+              >
+                {item}
+              </button>
+            ))}
+          </div>
+        </section>
 
-          {/* 生成按钮 */}
-          <button 
-            onClick={handleGenerate} 
-            disabled={loading}
-            className={`w-full py-4 rounded-xl text-white font-bold transition-all shadow-lg ${
-              loading 
-                ? 'bg-gray-400 cursor-not-allowed scale-95' 
-                : 'bg-orange-600 hover:bg-orange-700 hover:scale-[1.02] active:scale-95'
-            }`}
-          >
-            {loading ? (
-              <span className="flex items-center justify-center gap-2">
-                <span className="animate-spin text-lg">⏳</span>
-                正在寻找，稍等...
-              </span>
-            ) : '开始推荐'}
-          </button>
-        </div>
+        {/* 设备选择 */}
+        <section className="mb-8">
+          <div className="flex items-center gap-2 mb-4">
+            <span className="w-1.5 h-6 bg-orange-500 rounded-full"></span>
+            <h2 className="font-bold text-gray-800 text-lg">厨具装备</h2>
+          </div>
+          <div className="flex gap-3">
+            {['空气炸锅', '烤箱', '微波炉'].map(d => (
+              <button
+                key={d}
+                onClick={() => setDevice(d)}
+                disabled={loading}
+                className={`flex-1 py-3 rounded-2xl border-2 transition-all ${
+                  device === d ? 'border-orange-500 bg-orange-50 text-orange-600 font-bold' : 'border-gray-100 text-gray-400'
+                } ${loading ? 'opacity-40' : ''}`}
+              >
+                {d}
+              </button>
+            ))}
+          </div>
+        </section>
 
-        {/* 结果显示区域 */}
+        {/* 提交按钮 */}
+        <button 
+          onClick={handleGenerate} 
+          disabled={loading}
+          className={`w-full py-5 rounded-[2rem] text-white font-black text-lg tracking-widest transition-all shadow-xl active:scale-95 ${
+            loading ? 'bg-gray-300' : 'bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600'
+          }`}
+        >
+          {loading ? '正在研发独家配方...' : '开启美味探索'}
+        </button>
+
+        {/* 结果呈现 */}
         {recipe && !loading && (
-          <div className="border-t-2 border-orange-100 pt-4 mt-4 animate-in fade-in slide-in-from-bottom-4 duration-500 shadow-inner p-4 rounded-lg bg-orange-50">
-            <h2 className="text-xl font-bold text-orange-900 mb-2">{recipe.title}</h2>
-            <div className="bg-white/50 p-3 rounded-md mb-4 border border-orange-100">
-              <p className="text-gray-700 text-sm whitespace-pre-line leading-relaxed">
-                {recipe.steps}
-              </p>
+          <div className="mt-10 p-6 rounded-[2rem] bg-gradient-to-br from-orange-50 to-amber-50 border border-orange-100/50 animate-in slide-in-from-top-4 fade-in duration-700">
+            <div className="flex justify-between items-start mb-4">
+              <h3 className="text-2xl font-black text-orange-900">{recipe.title}</h3>
+              <span className="bg-orange-200 text-orange-700 text-[10px] px-2 py-1 rounded-full font-bold uppercase tracking-tighter">Chef AI</span>
             </div>
-            <a 
-              href={recipe.videoUrl} 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="block text-center bg-pink-500 text-white py-3 rounded-lg font-bold hover:bg-pink-600 transition-colors shadow-md"
-            >
-              去 B站 看视频教学 📺
-            </a>
+            <div className="space-y-4">
+              <div className="p-4 bg-white/60 rounded-2xl text-gray-700 text-sm leading-relaxed shadow-sm">
+                <p className="whitespace-pre-line">{recipe.steps}</p>
+              </div>
+              <a 
+                href={recipe.videoUrl} 
+                target="_blank" 
+                className="flex items-center justify-center gap-2 w-full bg-[#fb7299] text-white py-4 rounded-2xl font-bold shadow-lg shadow-pink-100 hover:brightness-105 transition-all"
+              >
+                <span>点击观看视频教程</span>
+                <span className="text-xl">📺</span>
+              </a>
+            </div>
           </div>
         )}
       </div>
+      
+      <p className="mt-8 text-orange-900/20 text-xs font-bold tracking-[0.2em]">CREATED BY BAKING LAB AI</p>
     </main>
   );
 }
