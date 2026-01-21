@@ -16,6 +16,7 @@ const config: Config = {
       },
       animation: {
         'bounce-slow': 'bounceSlow 1.5s infinite ease-in-out',
+        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
       },
     },
   },
